@@ -1,4 +1,4 @@
-# examples_from_learn_vue
+# posts-board-vue
 
 ## Project setup
 ```
