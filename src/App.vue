@@ -1,13 +1,20 @@
 <template>
     <div class="app">
-        <post-form @create="createPost" />
-        <post-list :posts="posts" @remove="removePost" />
+        <h1>Page with posts</h1>
+        <my-button @click="showDialog" style="margin: 15px 0;">Create post</my-button>
+        <my-dialog v-model:show="dialogVisible">
+            <post-form @create="createPost" />
+        </my-dialog>
+        <post-list :posts="posts" @remove="removePost" v-if="!isPostLoading" />
+        <div v-else><img src="./assets/img/loading.gif"> </div>
     </div>
 </template>
 
 <script>
 import PostForm from "@/components/PostForm";
 import PostList from "@/components/PostList";
+import MyButton from "@/components/UI/MyButton";
+import axios from "axios";
 
 export default {
     components: {
@@ -16,20 +23,39 @@ export default {
     },
     data() {
         return {
-            posts: [
-                { id: 1, title: 'Post 1 about Voe!', body: 'This example Vue project!' },
-                { id: 2, title: 'Post 2 about Voe!', body: 'This example Vue project!' },
-                { id: 3, title: 'Post 3 about Voe!', body: 'This example Vue project!' }
-            ],
+            posts: [],
+            dialogVisible: false,
+            isPostLoading: false
         }
     },
     methods: {
         createPost(post) {
-            this.posts.push(post);
+            if (post.title != 0 && post.body != 0) {
+                this.posts.push(post);
+                this.dialogVisible = false;
+            }
         },
         removePost(post) {
             this.posts = this.posts.filter(p => p.id !== post.id);
+        },
+        showDialog() {
+            this.dialogVisible = true;
+        },
+        async fetchPosts() {
+            try {
+                this.isPostLoading = true;
+                setTimeout(async () => {
+                    const response = await axios.get("https://jsonplaceholder.typicode.com/posts?_limit=10");
+                    this.posts = response.data;
+                    this.isPostLoading = false;
+                }, 1000);
+            } catch (error) {
+                alert("Some error!!!");
+            }
         }
+    },
+    mounted() {
+        this.fetchPosts();
     }
 }
 </script>
@@ -43,5 +69,7 @@ export default {
 
 .app {
     padding: 20px;
+    max-width: 500px;
+    margin: auto;
 }
 </style>
