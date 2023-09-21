@@ -1,12 +1,15 @@
 <template>
     <div class="app">
         <h1>Page with posts</h1>
-        <my-button @click="showDialog" style="margin: 15px 0;">Create post</my-button>
+        <div class="app__btns">
+            <my-button @click="showDialog">Create post</my-button>
+            <my-select />
+        </div>
         <my-dialog v-model:show="dialogVisible">
             <post-form @create="createPost" />
         </my-dialog>
         <post-list :posts="posts" @remove="removePost" v-if="!isPostLoading" />
-        <div v-else><img src="./assets/img/loading.gif"> </div>
+        <div v-else><img src="./assets/img/loading.gif"></div>
     </div>
 </template>
 
@@ -14,18 +17,23 @@
 import PostForm from "@/components/PostForm";
 import PostList from "@/components/PostList";
 import MyButton from "@/components/UI/MyButton";
+// import MySelect from "@/components/UI/MySelect";
+
 import axios from "axios";
 
 export default {
     components: {
         PostList,
-        PostForm
+        PostForm,
+        MyButton,
+        // MySelect
     },
     data() {
         return {
             posts: [],
             dialogVisible: false,
-            isPostLoading: false
+            isPostLoading: false,
+            selectedSort: ''
         }
     },
     methods: {
@@ -44,13 +52,12 @@ export default {
         async fetchPosts() {
             try {
                 this.isPostLoading = true;
-                setTimeout(async () => {
-                    const response = await axios.get("https://jsonplaceholder.typicode.com/posts?_limit=10");
-                    this.posts = response.data;
-                    this.isPostLoading = false;
-                }, 1000);
+                const response = await axios.get("https://jsonplaceholder.typicode.com/posts?_limit=10");
+                this.posts = response.data;
             } catch (error) {
                 alert("Some error!!!");
+            } finally {
+                this.isPostLoading = false;
             }
         }
     },
@@ -71,5 +78,11 @@ export default {
     padding: 20px;
     max-width: 500px;
     margin: auto;
+}
+
+.app__btns {
+    margin: 15px 0;
+    display: flex;
+    justify-content: space-between;
 }
 </style>

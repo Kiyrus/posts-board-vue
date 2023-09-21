@@ -39,7 +39,7 @@ export default {
     margin: auto;
     padding: 20px;
     background: white;
-    border: 2px solid teal;
+    border: 2px solid #008080;
     border-radius: 12px;
     min-height: 50px;
     min-width: 300px;
