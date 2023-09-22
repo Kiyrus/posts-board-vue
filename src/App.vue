@@ -3,12 +3,16 @@
         <h1>Page with posts</h1>
         <div class="app__btns">
             <my-button @click="showDialog">Create post</my-button>
-            <my-select />
+            <my-select v-model="selectedSort" :options="sortOptions"/>
         </div>
         <my-dialog v-model:show="dialogVisible">
             <post-form @create="createPost" />
         </my-dialog>
-        <post-list :posts="posts" @remove="removePost" v-if="!isPostLoading" />
+        <post-list 
+        :posts="posts" 
+        @remove="removePost" 
+        v-if="!isPostLoading" 
+        />
         <div v-else><img src="./assets/img/loading.gif"></div>
     </div>
 </template>
@@ -17,23 +21,28 @@
 import PostForm from "@/components/PostForm";
 import PostList from "@/components/PostList";
 import MyButton from "@/components/UI/MyButton";
-// import MySelect from "@/components/UI/MySelect";
+import MySelect from "@/components/UI/MySelect";
 
 import axios from "axios";
+import { resolveTransitionHooks } from "vue";
 
 export default {
     components: {
         PostList,
         PostForm,
         MyButton,
-        // MySelect
+        MySelect
     },
     data() {
         return {
             posts: [],
             dialogVisible: false,
             isPostLoading: false,
-            selectedSort: ''
+            selectedSort: '',
+            sortOptions: [
+                {value: 'title', name:'Title'},
+                {value: 'body', name:'Body'}
+            ]
         }
     },
     methods: {
@@ -52,8 +61,9 @@ export default {
         async fetchPosts() {
             try {
                 this.isPostLoading = true;
-                const response = await axios.get("https://jsonplaceholder.typicode.com/posts?_limit=10");
-                this.posts = response.data;
+                const {data} = await axios.get("https://jsonplaceholder.typicode.com/posts?_limit=10"); //деструктуризация
+                // console.log(response.data)
+                this.posts = data;
             } catch (error) {
                 alert("Some error!!!");
             } finally {
@@ -63,6 +73,13 @@ export default {
     },
     mounted() {
         this.fetchPosts();
+    },
+    watch: {
+        selectedSort(newValue) {
+            this.posts.sort((post1, post2) => {
+                return post1[this.selectedSort]?.localeCompare(post2[this.selectedSort])
+            }) 
+        }
     }
 }
 </script>
